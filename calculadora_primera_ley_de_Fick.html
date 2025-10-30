@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetFisTIC - Primera Ley de Fick</title>
+    <style>
+        /* Estilos Generales y Tipografía */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8; /* Fondo muy suave */
+            color: #263238; /* Texto oscuro */
+        }
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+        
+        /* Encabezados y Títulos */
+        h1 {
+            color: #3f51b5; 
+            text-align: center;
+            font-size: 1.8em;
+            border-bottom: 3px solid #c5cae9;
+            padding-bottom: 15px;
+            margin-bottom: 0;
+        }
+        h2 {
+            color: #5c6bc0; 
+            margin-top: 15px;
+            padding-bottom: 5px;
+            font-size: 1.5em;
+        }
+        .theory-section h3 {
+            color: #4caf50; 
+            border-bottom: 1px solid #c8e6c9;
+            padding-bottom: 5px;
+            margin-top: 25px;
+        }
+
+        /* Pestañas de Navegación */
+        .tab-menu {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #c5cae9;
+        }
+        .tab-button {
+            padding: 12px 25px;
+            cursor: pointer;
+            border: none;
+            background-color: #e8eaf6;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 2px;
+            font-size: 13pt;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .tab-button:hover {
+             background-color: #d1d9ff;
+        }
+        .tab-button.active {
+            background-color: #3f51b5;
+            color: white;
+            border-bottom: 2px solid #3f51b5;
+            margin-bottom: -2px; 
+        }
+        .tab-content {
+            display: none;
+            padding: 10px 0;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Calculadora y Entradas */
+        .fick-equation {
+            font-size: 1.6em;
+            font-style: italic;
+            margin: 25px 0;
+            text-align: center;
+            padding: 15px;
+            border: 2px dashed #4caf50;
+            background-color: #f1f8e9; 
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px; 
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px; 
+        }
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #263238;
+        }
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 12pt;
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+        .full-width-group {
+            grid-column: 1 / 3;
+        }
+
+        /* Botón de Cálculo */
+        button[type="button"] {
+            padding: 14px 20px;
+            background-color: #00bcd4; 
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15pt; 
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        button[type="button"]:hover {
+            background-color: #00acc1;
+        }
+
+        /* Resultado y Enlaces */
+        .result-box {
+            background-color: #e0f7fa; 
+            border: 3px solid #00bcd4;
+            padding: 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .external-link-box {
+            background-color: #fff9c4; 
+            border: 2px solid #ffeb3b;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.1em;
+        }
+        .external-link-box a {
+            color: #f57f17;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Teoría e Imágenes */
+        .theory-section p, .theory-section li {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .theory-section img {
+            max-width: 80%; 
+            height: auto;
+            display: block; 
+            margin: 20px auto; 
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .theory-section a {
+            color: #3f51b5;
+        }
+
+        /* Agradecimiento */
+        .acknowledgement {
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 2px solid #c5cae9;
+            font-size: 10pt;
+            line-height: 1.5;
+            color: #607d8b;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-radius: 0 0 12px 12px;
+            margin: 30px -30px -30px -30px; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Aprendizaje de la Primera Ley de Fick (MetFisTIC)</h1>
+    </header>
+
+    <div class="tab-menu">
+        <button class="tab-button active" onclick="openTab(event, 'Calculadora')">Calculadora</button>
+        <button class="tab-button" onclick="openTab(event, 'Teoria')">Teoría</button>
+        <button class="tab-button" onclick="openTab(event, 'Manual')">Manual de uso</button>
+    </div>
+
+    <div id="Calculadora" class="tab-content active">
+        <h2>Calculadora de la Primera Ley de Fick</h2>
+        <div class="fick-equation">
+            J = D ⋅ (C&#x2081; - C&#x209B;) / ΔX
+        </div>
+
+        <form id="fick-calculator">
+            <div class="calculator-grid">
+                
+                <div class="input-group full-width-group">
+                    <label for="unknown-var">Seleccione la variable a calcular (Incógnita):</label>
+                    <select id="unknown-var" onchange="toggleInputs()">
+                        <option value="J">Flujo (J)</option>
+                        <option value="D">Difusividad (D)</option>
+                        <option value="Cs">Concentración final (C&#x209B;)</option>
+                        <option value="Ci">Concentración inicial (C&#x2081;)</option>
+                        <option value="DeltaX">Espesor/Distancia (ΔX)</option>
+                    </select>
+                </div>
+
+                <div class="input-group full-width-group" id="output-unit-group">
+                    <label for="output-unit-select">Unidad deseada para la RESPUESTA final:</label>
+                    <select id="output-unit-select" onchange="toggleMolarMass()"></select>
+                    <small id="output-unit-note" style="color: #455a64;"></small>
+                </div>
+
+                <div class="input-group" id="D-input">
+                    <label for="D-val">Difusividad (D): m²/s</label>
+                    <input type="text" id="D-val" placeholder="Ej: 1,23e-10" required>
+                </div>
+
+                <div class="input-group" id="DeltaX-input">
+                    <label for="DeltaX-val">Distancia/Espesor (ΔX):</label>
+                    <input type="text" id="DeltaX-val" placeholder="Ej: 0,001" required>
+                    <select id="DeltaX-unit" onchange="toggleInputs()">
+                        <option value="m">metros (m)</option>
+                        <option value="pies">pies (ft)</option>
+                        <option value="pulgadas">pulgadas (in)</option>
+                        <option value="cm">centímetros (cm)</option>
+                        <option value="mm">milímetros (mm)</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="Cs-input">
+                    <label for="Cs-val">Concentración final (C&#x209B;):</label>
+                    <input type="text" id="Cs-val" placeholder="Ej: 50" required>
+                    <select id="Conc-unit-Cs" onchange="toggleMolarMass()">
+                        <option value="moles">moles/m³</option>
+                        <option value="gramos">gramos/m³</option>
+                        <option value="atomos">átomos/m³</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="Ci-input">
+                    <label for="Ci-val">Concentración inicial (C&#x2081;):</label>
+                    <input type="text" id="Ci-val" placeholder="Ej: 0" required>
+                    <select id="Conc-unit-Ci" onchange="toggleMolarMass()">
+                        <option value="moles">moles/m³</option>
+                        <option value="gramos">gramos/m³</option>
+                        <option value="atomos">átomos/m³</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" id="J-input" style="display: none;">
+                    <label for="J-val">Flujo (J):</label>
+                    <input type="text" id="J-val" placeholder="Ej: 1,5e-8" required>
+                    <select id="J-unit" onchange="toggleMolarMass()">
+                        <option value="moles">moles/(m²·s)</option>
+                        <option value="gramos">gramos/(m²·s)</option>
+                        <option value="atomos">átomos/(m²·s)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group full-width-group" id="MolarMass-input" style="display: none;">
+                    <label for="MolarMass-val">Peso Molar del elemento (M): g/mol</label>
+                    <input type="text" id="MolarMass-val" placeholder="INGRESE M solo si mezcla unidades (ej: gramos y moles). Ej: 55,845 para el Hierro.">
+                </div>
+
+            </div>
+            <button type="button" onclick="calculateFick()">CALCULAR</button>
+        </form>
+
+        <div id="result" class="result-box" style="display: none;"></div>
+
+        <div class="external-link-box">
+            Calcula acá la difusividad: <a href="https://metfistic2025.github.io/Calculadora_METfisTIC_de_difusion/" target="_blank">Calculadora de Difusividad</a>
+        </div>
+        
+        <div class="acknowledgement">
+            Esta calculadora forma parte del proyecto MetFisTIC "Módulo TIC de Autoestudio que incorpora Simulaciones e IA para Aprendizaje de Conceptos Fundamentales sobre Metalurgia Física", dirigido por los profesores Pedro Delvasto y Walter Pardavé. MetFisTIC fue financiado por la Vicerrectoría Académica de la Universidad Industrial de Santander (2025). La calculadora fue elaborada por Andrés Felipe Caro Miranda y revisada por Alisson Vanessa Guerrero Salcedo!
+        </div>
+    </div>
+
+    <div id="Teoria" class="tab-content">
+        <h2>Teoría de la Difusión y la Primera Ley de Fick</h2>
+        <div class="theory-section">
+            
+            <h3>Qué es el Flujo de Átomos (J)</h3>
+            <p>El flujo de átomos (J) se define como la cantidad de átomos (o moles, o masa) de una especie que atraviesa una unidad de área en una unidad de tiempo. Es, esencialmente, una medida de la velocidad con que se mueven los átomos a través de un material. Sus unidades típicamente son moles/(m² · s) o átomos/(m² · s).</p>
+
+            <h3>Qué es la Difusividad (D)</h3>
+            <p>La difusividad (D) o coeficiente de difusión es una propiedad intrínseca del material que cuantifica la facilidad con que una especie atómica se mueve en otra. Es una función fuertemente dependiente de la temperatura y de la microestructura del material. Sus unidades son m²/s.</p>
+            <p>La difusividad está directamente relacionada con la energía de activación necesaria para que un átomo salte a una posición vecina. Esta energía varía según el mecanismo de difusión. La difusión intersticial generalmente requiere menor energía que la sustitucional, como se ilustra en la siguiente imagen.</p>
+            <img src="https://i.ytimg.com/vi/ECXiP2rFWqI/maxresdefault.jpg" alt="Diferencia de Energía de Activación para Difusión Sustitucional e Intersticial">
+            
+            <h3>La Primera Ley de Fick</h3>
+            <p>La Primera Ley de Fick describe el flujo de difusión en condiciones de estado estacionario. El estado estacionario se alcanza cuando el perfil de concentración no cambia con el tiempo, es decir, la velocidad de difusión es constante.</p>
+            <p>La ley establece que el flujo de átomos (J) es proporcional al gradiente de concentración (la variación de concentración con la distancia):</p>
+            <p class="fick-equation">
+                J = -D ⋅ (dC / dX)
+            </p>
+            <p>Para un caso unidimensional y lineal (usando la diferencia de concentración positiva), se simplifica a la forma:</p>
+            <p class="fick-equation">
+                J = D ⋅ (C&#x2081; - C&#x209B;) / ΔX
+            </p>
+            <img src="https://www.lifeder.com/wp-content/uploads/2020/12/Ec-1era-ley-de-Fick.jpg" alt="Ecuación de la Primera Ley de Fick">
+
+            <h3>Condiciones de Aplicación y Gradiente de Concentración</h3>
+            <p>La Primera Ley de Fick se aplica en condiciones de estado estacionario. El flujo siempre ocurre desde las regiones de mayor concentración (Ci) a las de menor concentración (Cs), buscando la uniformidad. El signo negativo de la ecuación diferencial original es absorbido por la convención de restar la concentración menor de la mayor (Ci - Cs) para obtener un flujo (J) positivo.</p>
+            <p>La siguiente imagen ilustra cómo evoluciona el perfil de concentración en un proceso de difusión no estacionario que eventualmente tiende al equilibrio:</p>
+            <img src="https://www.quimicafisica.com/images/fenomenos-transporte/fick1.png" alt="Evolución del Perfil de Concentración con el Tiempo">
+            <p>La imagen explica cómo la diferencia de concentraciones (gradiente) a través del tiempo tiende a igualar las concentraciones en un tiempo infinito, lo que resulta en un gradiente nulo o constante (estado estacionario).</p>
+
+            <h3>Parámetros que Afectan a la Difusividad (D)</h3>
+            <p>La difusividad es afectada principalmente por:</p>
+            <ul>
+                <li>Temperatura: El factor más influyente. Aumentar la temperatura incrementa significativamente la D (relación exponencial de Arrhenius).</li>
+                <li>Mecanismo de Difusión: La difusión intersticial es típicamente más rápida.</li>
+                <li>Estructura Cristalina: Estructuras menos densas o con más espacio libre, como la BCC, suelen presentar mayor D que la FCC.</li>
+                <li>Concentración de Defectos: Más defectos (vacantes o dislocaciones) aumentan la D al facilitar el movimiento atómico.</li>
+            </ul>
+        </div>
+        
+        <h3>Video de Apoyo</h3>
+        <p>Para una explicación más profunda, se recomienda el siguiente video, del canal Solve Engineering:</p>
+        <p><a href="https://www.youtube.com/watch?v=ECXiP2rFWqI" target="_blank">Video: Difusión en Sólidos</a></p>
+
+        <div class="acknowledgement">
+            Esta calculadora forma parte del proyecto MetFisTIC "Módulo TIC de Autoestudio que incorpora Simulaciones e IA para Aprendizaje de Conceptos Fundamentales sobre Metalurgia Física", dirigido por los profesores Pedro Delvasto y Walter Pardavé. MetFisTIC fue financiado por la Vicerrectoría Académica de la Universidad Industrial de Santander (2025). La calculadora fue elaborada por Andrés Felipe Caro Miranda y revisada por Alisson Vanessa Guerrero Salcedo!
+        </div>
+    </div>
+
+    <div id="Manual" class="tab-content">
+        <h2>Manual de uso</h2>
+        <div class="theory-section">
+            <h3>Funcionamiento General</h3>
+            <ol>
+                <li>Selección de Incógnita: Utilice el primer menú desplegable para indicar la variable que desea calcular (J, D, C&#x209B;, C&#x2081;, o ΔX).</li>
+                <li>Unidades de Salida: Una vez elegida la incógnita, seleccione la unidad deseada para la respuesta final en el recuadro "Unidad deseada para la RESPUESTA final".</li>
+                <li>Unidades Autónomas: Elija las unidades para J, Cs y Ci de manera independiente.</li>
+                <li>Peso Molar (M): El campo del Peso Molar solo aparecerá si se requiere una conversión entre unidades de sustancia (moles/átomos) y masa (gramos).</li>
+                <li>Entrada de Datos: Ingrese valores para las variables restantes.</li>
+                <li>Resultado: Presione CALCULAR.</li>
+            </ol>
+            
+            <h3>Convenciones de Entrada de Datos para la Calculadora</h3>
+            <p>Para garantizar cálculos precisos, por favor siga estas convenciones:</p>
+            <ul>
+                <li>Decimales: Utilice la coma (,) como separador decimal, y no el punto (.).<br>
+                    Ejemplo: Para ingresar 1.25, escriba <code>1,25</code>.</li>
+                <li>Notación Científica: Utilice la letra <code>e</code> (o <code>E</code>) para denotar la potencia de 10.<br>
+                    Ejemplo: Para ingresar 6.022 x 10^23, escriba <code>6,022e23</code>.</li>
+                <li>Unidades de Entrada Fijas: La Difusividad (D) se espera en m²/s.</li>
+            </ul>
+        </div>
+
+        <div class="acknowledgement">
+            Esta calculadora forma parte del proyecto MetFisTIC "Módulo TIC de Autoestudio que incorpora Simulaciones e IA para Aprendizaje de Conceptos Fundamentales sobre Metalurgia Física", dirigido por los profesores Pedro Delvasto y Walter Pardavé. MetFisTIC fue financiado por la Vicerrectoría Académica de la Universidad Industrial de Santander (2025). La calculadora fue elaborada por Andrés Felipe Caro Miranda y revisada por Alisson Vanessa Guerrero Salcedo!
+        </div>
+    </div>
+</div>
+
+<script>
+    // Constantes físicas
+    const AVOGADRO = 6.022e23; 
+    const BASE_UNIT = 'moles'; // Unidad de sustancia base para el cálculo interno (moles)
+
+    // Constantes de conversión de longitud a metros
+    const LENGTH_CONVERSIONS = {
+        'm': 1,
+        'pies': 0.3048,
+        'pulgadas': 0.0254,
+        'cm': 0.01,
+        'mm': 0.001
+    };
+
+    // Estructura de Unidades
+    const UNIT_OPTIONS = {
+        'J': { 
+            moles: 'moles/(m²·s)',
+            gramos: 'gramos/(m²·s)',
+            atomos: 'átomos/(m²·s)'
+        },
+        'D': { 
+            m2_s: 'm²/s'
+        },
+        'Cs': { 
+            moles: 'moles/m³',
+            gramos: 'gramos/m³',
+            atomos: 'átomos/m³'
+        },
+        'Ci': { 
+            moles: 'moles/m³',
+            gramos: 'gramos/m³',
+            atomos: 'átomos/m³'
+        },
+        'DeltaX': { 
+            m: 'metros (m)',
+            pies: 'pies (ft)',
+            pulgadas: 'pulgadas (in)',
+            cm: 'centímetros (cm)',
+            mm: 'milímetros (mm)'
+        }
+    };
+
+    /**
+     * Función para alternar las pestañas.
+     */
+    function openTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // Inicializar la primera pestaña
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("Calculadora").style.display = "block";
+        document.getElementById("unknown-var").value = "J";
+        toggleInputs(); 
+    });
+
+    /**
+     * Alterna la visibilidad de los campos de entrada/salida y las unidades de respuesta.
+     */
+    function toggleInputs() {
+        const unknownVar = document.getElementById('unknown-var').value;
+        const inputs = {
+            'J': document.getElementById('J-input'),
+            'D': document.getElementById('D-input'),
+            'Cs': document.getElementById('Cs-input'),
+            'Ci': document.getElementById('Ci-input'),
+            'DeltaX': document.getElementById('DeltaX-input')
+        };
+        const outputUnitGroup = document.getElementById('output-unit-group');
+
+        // Ocultar/Mostrar entradas de datos
+        for (const [key, element] of Object.entries(inputs)) {
+            element.style.display = (key === unknownVar) ? 'none' : 'flex';
+        }
+        
+        // El Flujo (J) se muestra si NO es la incógnita
+        if (unknownVar !== 'J') {
+            document.getElementById('J-input').style.display = 'flex';
+        } else {
+             document.getElementById('J-input').style.display = 'none';
+        }
+
+        // Llamar a la función de actualización de unidades de salida
+        outputUnitGroup.style.display = 'flex';
+        updateOutputUnits(unknownVar);
+
+        // Actualizar el estado del Peso Molar
+        toggleMolarMass(); 
+    }
+
+    /**
+     * Rellena las opciones del select de unidades de la respuesta final.
+     */
+    function updateOutputUnits(unknownVar) {
+        const select = document.getElementById('output-unit-select');
+        const note = document.getElementById('output-unit-note');
+        
+        // Limpiar opciones anteriores
+        select.innerHTML = '';
+        
+        const units = UNIT_OPTIONS[unknownVar];
+        if (units) {
+            for (const [key, value] of Object.entries(units)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = value;
+                select.appendChild(option);
+            }
+        }
+
+        // Notas especiales
+        if (unknownVar === 'D') {
+            note.textContent = 'La Difusividad siempre se calcula en m²/s, esta es la única opción.'; 
+        } else if (unknownVar === 'DeltaX') {
+            note.textContent = 'Seleccione la unidad de distancia deseada para el resultado.';
+        } else if (unknownVar === 'J') {
+             note.textContent = 'El resultado de Flujo se convertirá a la unidad seleccionada aquí.';
+        } else if (unknownVar === 'Cs' || unknownVar === 'Ci') {
+             note.textContent = 'La Concentración resultante se convertirá a la unidad seleccionada aquí.';
+        }
+    }
+
+    /**
+     * Alterna la visibilidad del campo de Peso Molar. Solo es necesario si
+     * hay que hacer conversiones entre sustancia (moles/átomos) y masa (gramos).
+     */
+    function toggleMolarMass() {
+        const unknownVar = document.getElementById('unknown-var').value;
+        const outputUnitKey = document.getElementById('output-unit-select').value;
+
+        // Unidades de Concentraciones de ENTRADA
+        const unitCs_input = document.getElementById('Conc-unit-Cs').value;
+        const unitCi_input = document.getElementById('Conc-unit-Ci').value;
+        const unitJ_input = document.getElementById('J-unit').value;
+        
+        let relevantUnits = [];
+
+        // 1. Incluir Cs (Entrada o Salida)
+        if (unknownVar === 'Cs') {
+            relevantUnits.push(outputUnitKey);
+        } else {
+            relevantUnits.push(unitCs_input);
+        }
+
+        // 2. Incluir Ci (Entrada o Salida)
+        if (unknownVar === 'Ci') {
+            relevantUnits.push(outputUnitKey);
+        } else {
+            relevantUnits.push(unitCi_input);
+        }
+        
+        // 3. Incluir J (Entrada o Salida)
+        if (unknownVar === 'J') {
+            relevantUnits.push(outputUnitKey); // J es salida
+        } else {
+            // J es entrada para todos los demás casos (D, DeltaX, Cs, Ci)
+            relevantUnits.push(unitJ_input);
+        }
+
+        // Molar Mass es necesario si hay una mezcla de unidades de MASA y SUSTANCIA.
+        const hasGrams = relevantUnits.some(unit => unit === 'gramos');
+        const hasMolesOrAtoms = relevantUnits.some(unit => unit === 'moles' || unit === 'atomos');
+        
+        // Se necesita M si hay gramos Y (moles O átomos).
+        const needsMolarMass = hasGrams && hasMolesOrAtoms;
+        
+        const MolarMassInput = document.getElementById('MolarMass-input');
+
+        MolarMassInput.style.display = needsMolarMass ? 'flex' : 'none';
+    }
+
+
+    /**
+     * Convierte un valor de Flujo o Concentración a la unidad base interna (moles/x).
+     * Si effectiveMolarMass = 1, la unidad 'gramos' pasa sin cambios.
+     */
+    function convertConcentrationToBase(value, unit, effectiveMolarMass) {
+        if (unit === BASE_UNIT) {
+            return value;
+        } else if (unit === 'gramos') {
+            // MolarMass está en g/mol. Convertir masa a moles (o dejarlo igual si effectiveMolarMass=1, en el caso de que todas sean masa).
+            if (effectiveMolarMass <= 0) {
+                 throw new Error("El Peso Molar (M) debe ser positivo y válido para la conversión de 'gramos' a 'moles'.");
+            }
+            return value / effectiveMolarMass; 
+        } else if (unit === 'atomos') {
+            // Convertir átomos a moles.
+             if (effectiveMolarMass <= 0) {
+                throw new Error("El Peso Molar (M) debe ser positivo y válido si se usa 'átomos'.");
+             }
+            return value / AVOGADRO; 
+        }
+        return value; 
+    }
+
+    /**
+     * Convierte un valor desde la unidad base interna (moles) a la unidad deseada.
+     * Si effectiveMolarMass = 1, la conversión de 'gramos' pasa sin cambios.
+     */
+    function convertFromBase(value, targetUnit, effectiveMolarMass) {
+        if (targetUnit === BASE_UNIT) {
+            return value;
+        } else if (targetUnit === 'gramos') {
+            // De moles a masa (gramos)
+            if (effectiveMolarMass <= 0) {
+                throw new Error("El Peso Molar (M) debe ser positivo y válido para la conversión de 'moles' a 'gramos'.");
+            }
+            return value * effectiveMolarMass; 
+        } else if (targetUnit === 'atomos') {
+            // De moles a átomos
+            return value * AVOGADRO; 
+        }
+        return value; 
+    }
+
+
+    /**
+     * Función que convierte la entrada de texto (con coma y 'e') a un número flotante.
+     */
+    function parseInput(value) {
+        if (!value) return null;
+        let cleanedValue = value.replace(',', '.');
+        const parsed = parseFloat(cleanedValue);
+        if (isNaN(parsed)) {
+            throw new Error(`El valor ingresado no es un número válido. Revise el uso de coma decimal (,) y 'e' para notación científica.`);
+        }
+        return parsed;
+    }
+
+    /**
+     * Función principal que ejecuta el cálculo y las conversiones.
+     */
+    function calculateFick() {
+        const resultDiv = document.getElementById('result');
+        const unknownVar = document.getElementById('unknown-var').value;
+        const outputUnitKey = document.getElementById('output-unit-select').value;
+        
+        resultDiv.style.display = 'none';
+        resultDiv.style.backgroundColor = '#e0f7fa';
+
+        try {
+            // 1. Determinar si se necesita Molar Mass y obtener su valor
+            const unitCs_input = document.getElementById('Conc-unit-Cs').value;
+            const unitCi_input = document.getElementById('Conc-unit-Ci').value;
+            const unitJ_input = document.getElementById('J-unit').value;
+
+            let relevantUnits = [];
+            // Cs (Entrada o Salida)
+            if (unknownVar === 'Cs') relevantUnits.push(outputUnitKey); else relevantUnits.push(unitCs_input);
+            // Ci (Entrada o Salida)
+            if (unknownVar === 'Ci') relevantUnits.push(outputUnitKey); else relevantUnits.push(unitCi_input);
+            // J (Entrada o Salida)
+            if (unknownVar === 'J') relevantUnits.push(outputUnitKey); else relevantUnits.push(unitJ_input);
+            
+            
+            const hasGrams = relevantUnits.some(unit => unit === 'gramos');
+            const hasMolesOrAtoms = relevantUnits.some(unit => unit === 'moles' || unit === 'atomos');
+            const needsMolarMass = hasGrams && hasMolesOrAtoms;
+            
+            let MolarMass = 1;
+            
+            if (needsMolarMass) {
+                // Si es necesario, obtener el valor del input
+                MolarMass = parseInput(document.getElementById('MolarMass-val').value);
+                if (MolarMass === null || MolarMass <= 0) {
+                    throw new Error("El campo de Peso Molar es obligatorio y debe ser un número positivo para realizar conversiones entre gramos, moles o átomos, al mezclar unidades.");
+                }
+            }
+            
+            // Si no se necesita MolarMass, MolarMass es 1. Esto permite que la unidad 'gramos'
+            // pase a través de las funciones de conversión sin alterarse.
+            const effectiveMolarMass = MolarMass; 
+
+
+            // 2. Obtener los demás valores de entrada
+            const inputVals = {
+                J: unknownVar !== 'J' ? parseInput(document.getElementById('J-val').value) : null,
+                D: unknownVar !== 'D' ? parseInput(document.getElementById('D-val').value) : null,
+                Cs: unknownVar !== 'Cs' ? parseInput(document.getElementById('Cs-val').value) : null,
+                Ci: unknownVar !== 'Ci' ? parseInput(document.getElementById('Ci-val').value) : null,
+                DeltaX: unknownVar !== 'DeltaX' ? parseInput(document.getElementById('DeltaX-val').value) : null,
+            };
+
+            // 3. Validar entradas
+            for (const key in inputVals) {
+                if (key !== unknownVar && inputVals[key] === null) {
+                    throw new Error(`Por favor, ingrese un valor válido para la variable de entrada: ${key}.`);
+                }
+            }
+
+            // 4. Conversión de DeltaX a metros (m)
+            const deltaXUnit = document.getElementById('DeltaX-unit').value;
+            let DeltaX_m = inputVals.DeltaX;
+            if (unknownVar !== 'DeltaX') {
+                if (inputVals.DeltaX <= 0) throw new Error("La distancia/espesor (ΔX) debe ser positiva.");
+                DeltaX_m = inputVals.DeltaX * LENGTH_CONVERSIONS[deltaXUnit];
+            }
+            
+            // 5. Conversión de las unidades de sustancia a la unidad base (moles efectivos)
+            let Cs_base, Ci_base, J_base;
+
+            if (unknownVar !== 'Cs') {
+                Cs_base = convertConcentrationToBase(inputVals.Cs, unitCs_input, effectiveMolarMass);
+            }
+            if (unknownVar !== 'Ci') {
+                Ci_base = convertConcentrationToBase(inputVals.Ci, unitCi_input, effectiveMolarMass);
+            }
+            if (unknownVar !== 'J') {
+                J_base = convertConcentrationToBase(inputVals.J, unitJ_input, effectiveMolarMass);
+            }
+
+            // 6. Lógica del cálculo (en moles/gramos efectivos)
+            let resultValue_base;
+
+            // Diferencia de concentración D_C = Ci - Cs 
+            const D_C_base = (unknownVar !== 'Cs' && unknownVar !== 'Ci') ? Ci_base - Cs_base : 0; 
+            
+            if (unknownVar !== 'Cs' && unknownVar !== 'Ci' && D_C_base < 0) {
+                 throw new Error("La Concentración Inicial (Ci) debe ser mayor o igual a la Concentración Final (Cs) para que el Flujo sea positivo.");
+            }
+
+            switch (unknownVar) {
+                case 'J':
+                    if (DeltaX_m === 0) throw new Error("El espesor (ΔX) no puede ser cero.");
+                    resultValue_base = inputVals.D * D_C_base / DeltaX_m;
+                    break;
+                case 'D':
+                    if (D_C_base === 0) throw new Error("La diferencia de concentración (Ci - Cs) no puede ser cero para calcular D.");
+                    resultValue_base = J_base * DeltaX_m / D_C_base;
+                    break;
+                case 'Cs':
+                    resultValue_base = Ci_base - (J_base * DeltaX_m / inputVals.D);
+                    break;
+                case 'Ci':
+                    resultValue_base = Cs_base + (J_base * DeltaX_m / inputVals.D);
+                    break;
+                case 'DeltaX':
+                    if (J_base <= 0) throw new Error("El Flujo (J) debe ser positivo y válido para calcular ΔX.");
+                    resultValue_base = inputVals.D * D_C_base / J_base; 
+                    break;
+            }
+
+            // 7. Conversión del resultado base a la unidad deseada por el usuario
+            let finalValue = resultValue_base;
+            let finalUnit = UNIT_OPTIONS[unknownVar][outputUnitKey];
+            
+            if (unknownVar === 'J' || unknownVar === 'Cs' || unknownVar === 'Ci') {
+                 // Conversión de Moles/Gramos efectivos a la unidad final deseada
+                finalValue = convertFromBase(resultValue_base, outputUnitKey, effectiveMolarMass);
+            } else if (unknownVar === 'DeltaX') {
+                // Conversión de metros a la unidad final deseada
+                const factorInverso = 1 / LENGTH_CONVERSIONS[outputUnitKey];
+                if (finalValue < 0) throw new Error("La distancia/espesor calculada (ΔX) resultó negativa. Esto indica un error en los datos (ej: Flujo o D negativos).");
+                finalValue = finalValue * factorInverso;
+            } 
+            
+            // 8. Validación final y Formato
+            if ((unknownVar === 'Cs' || unknownVar === 'Ci' || unknownVar === 'D' || unknownVar === 'J' || unknownVar === 'DeltaX') && finalValue < 0) {
+                throw new Error(`El valor calculado (${unknownVar}) resultó negativo. Los valores de Flujo, Difusividad, Concentración y Distancia deben ser positivos.`);
+            }
+
+            let formattedResult = finalValue.toLocaleString('es-ES', { 
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 5,
+                useGrouping: false 
+            });
+            
+            if (Math.abs(finalValue) < 1e-4 || Math.abs(finalValue) > 1e6) {
+                formattedResult = finalValue.toExponential(4).replace('.', ',');
+            }
+
+
+            let varName = {
+                'J': 'Flujo (J)', 'D': 'Difusividad (D)', 'Cs': 'Concentración final (C&#x209B;)',
+                'Ci': 'Concentración inicial (C&#x2081;)', 'DeltaX': 'Distancia/Espesor (ΔX)'
+            }[unknownVar];
+            
+            resultDiv.innerHTML = `<strong>Resultado:</strong><br>${varName} = ${formattedResult} ${finalUnit}`;
+            resultDiv.style.display = 'block';
+
+        } catch (e) {
+            // Manejo de errores
+            resultDiv.style.backgroundColor = '#ffcdd2'; 
+            resultDiv.innerHTML = `<strong>❌ ¡Error en el Cálculo!</strong><br>${e.message}`;
+            resultDiv.style.display = 'block';
+        }
+    }
+
+</script>
+
+</body>
+</html>
